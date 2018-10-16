@@ -29,7 +29,6 @@ try:
 except:
     print("Can't parse server:port from '%s'" % server)
     sys.exit(1)
-
 class ClientThread(Thread):
     def __init__(self, serverHost, serverPort, debug):
         Thread.__init__(self, daemon=False)
@@ -61,15 +60,28 @@ class ClientThread(Thread):
            sys.exit(1)
 
        fs = FramedStreamSock(s, debug=debug)
+       user_input = input('What is the name of the file you would like to send?')
+       try:
+           f = open(user_input, 'rb')
+       except:
+           print('Error while opening file, make sure that it exists and is in the current directory')
+                
+       print('Sending file to server')
+       user_input = bytearray(user_input, 'utf-8')
+       fs.sendmsg(user_input)
+       line = f.read(100)
+       while(line):
+           fs.sendmsg(bytearray(line))
+           line = f.read(100)
+       try:
+           print("received:", fs.receivemsg())
+       except:
+           print('Error while receiving')
 
 
-       print("sending hello world")
-       fs.sendmsg(b"hello world")
-       print("received:", fs.receivemsg())
 
-       fs.sendmsg(b"hello world")
-       print("received:", fs.receivemsg())
+ClientThread(serverHost, serverPort, debug)
 
-for i in range(100):
-    ClientThread(serverHost, serverPort, debug)
+
+
 

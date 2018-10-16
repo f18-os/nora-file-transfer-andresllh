@@ -18,12 +18,13 @@ class FramedStreamSock:
           while len(msg):
                nsent = self.sock.send(msg)
                msg = msg[nsent:]
+               
      def receivemsg(self):
           state = "getLength"
           msgLength = -1
           while True:
                if (state == "getLength"):
-                    match = re.match(b'([^:]+):(.*)', self.rbuf) # look for colon
+                    match = re.match(b'([^:]+):(.*)', self.rbuf, re.DOTALL | re.MULTILINE)
                     if match:
                          lengthStr, self.rbuf = match.groups()
                          try: 
